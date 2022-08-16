@@ -28,9 +28,10 @@ size_t ByteStream::write(const string &data)
 }
 void ByteStream::writechar(const char& c)
 {
-   if(remaining_capacity())
-      buffer[rear++]=c;
+   
+   buffer[rear++]=c;
    rear=rear%(capacit+1);
+   writecount++;
 }
 //! \param[in] len bytes will be copied from the output side of the buffer
 string ByteStream::peek_output(const size_t len) const 
