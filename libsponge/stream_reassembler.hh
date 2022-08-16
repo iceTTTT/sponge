@@ -16,7 +16,7 @@ class StreamReassembler {
     size_t nextneeded=0;   //bytes need to put next
     size_t cacheleast=0;  //smallest cache bytes
     bool _eof=false;
-
+    size_t maxaccepted=0;
     ByteStream _output;  //!< The reassembled in-order byte stream
     size_t _capacity;    //!< The maximum number of bytes
   public:

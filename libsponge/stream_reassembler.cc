@@ -21,6 +21,8 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
 {   size_t datasize=data.size();
     size_t indata;
     //put in stream
+    if(datasize+index-1>maxaccepted && datasize)
+        maxaccepted=datasize+index-1;
     if(index<=nextneeded && index+datasize-1>=nextneeded)
     {      
            indata=nextneeded-index;      
@@ -41,8 +43,8 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
                 _output.writechar(data[indata]);
                 nextneeded++; 
            } 
-        if(_output.remaining_capacity())
-        {
+         if(_output.remaining_capacity())
+         {
             if(nextneeded>=cacheleast)
             {   
                 while(nextneeded>cacheleast && auxiliary.size())
@@ -51,9 +53,11 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
                      cacheleast++;
                 }
                while(auxiliary.size())
-                 {
+                 {  
                     _output.writechar(auxiliary.front());
-                   auxiliary.pop_front();
+                    nextneeded++;
+                    auxiliary.pop_front();
+                    cacheleast++;
                  }
             }
         }
@@ -69,22 +73,22 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
 }
 size_t StreamReassembler::unassembled_bytes() const { return auxiliary.size(); }
 
-bool StreamReassembler::empty() const { return _eof && !auxiliary.size(); }
+bool StreamReassembler::empty() const { return _eof && !auxiliary.size() && (maxaccepted== nextneeded-1 || (nextneeded==0 && maxaccepted==0)); }
 
 bool StreamReassembler::isfull(){    return (_output.buffer_size()+auxiliary.size() ==_capacity);  }
 
 void StreamReassembler::auxexpand(const size_t index,const size_t datasize,const std::string& data)
 {
   if(!cacheleast)
-          {
-              cacheleast=index;
-          for(size_t i=0;index+i<nextneeded+_capacity && i<datasize && !isfull();i++)
-                  auxiliary.push_back(data[i]);
-          }
-          else if(index<cacheleast && index+datasize-1>=cacheleast-1)
+   {
+        cacheleast=index;
+        for(size_t i=0;index+i<nextneeded+_capacity && i<datasize && !isfull();i++)
+             auxiliary.push_back(data[i]);
+    }
+  else if(index<cacheleast && index+datasize-1>=cacheleast-1)
           {        size_t i;
                    for(i=cacheleast-1-index;!isfull();i--)
-                      {auxiliary.push_front(data[i]);
+                      { auxiliary.push_front(data[i]);
                         if(!i)
                           break;
                       }
@@ -92,13 +96,12 @@ void StreamReassembler::auxexpand(const size_t index,const size_t datasize,const
                    if(!i)
                      cacheleast--;
                    for(i=cacheleast+auxiliary.size()-index;i<datasize&& !isfull();i++)
-                       auxiliary.push_back(data[i]);
-                         
+                           auxiliary.push_back(data[i]);      
           }
-          else if(index>=cacheleast && index<=cacheleast+auxiliary.size() && index+datasize-1>=cacheleast+auxiliary.size())
+   else if(index>=cacheleast && index<=cacheleast+auxiliary.size() && index+datasize-1>=cacheleast+auxiliary.size())
           {
 
               for(size_t i=cacheleast+auxiliary.size()-index;i<datasize && !isfull();i++)
-                    auxiliary.push_back(data[i]);
+                        auxiliary.push_back(data[i]);
           }
 }
