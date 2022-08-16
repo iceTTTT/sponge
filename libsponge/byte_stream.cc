@@ -11,7 +11,7 @@ template <typename... Targs>
 void DUMMY_CODE(Targs &&... /* unused */) {}
 
 using namespace std;
-ByteStream::ByteStream(const size_t capacity):buffer(new int[capacity+1]),capacit(capacity) {}
+ByteStream::ByteStream(const size_t capacity):buffer(new char[capacity+1]),capacit(capacity) {}
 
 size_t ByteStream::write(const string &data) 
 {
@@ -26,7 +26,12 @@ size_t ByteStream::write(const string &data)
     } 
     return written;
 }
-
+void ByteStream::writechar(const char& c)
+{
+   if(remaining_capacity())
+      buffer[rear++]=c;
+   rear=rear%(capacit+1);
+}
 //! \param[in] len bytes will be copied from the output side of the buffer
 string ByteStream::peek_output(const size_t len) const 
 {

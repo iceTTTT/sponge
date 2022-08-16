@@ -16,7 +16,7 @@ class ByteStream {
     // all, but if any of your tests are taking longer than a second,
     // that's a sign that you probably want to keep exploring
     // different approaches.
-    std::unique_ptr<int[]>  buffer;
+    std::unique_ptr<char[]>  buffer;
     size_t capacit;
     size_t rear=0;
     size_t head=0;
@@ -36,7 +36,7 @@ class ByteStream {
     //! as will fit, and return how many were written.
     //! \returns the number of bytes accepted into the stream
     size_t write(const std::string &data);
-
+    void writechar(const char& c);
     //! \returns the number of additional bytes that the stream has space for
     size_t remaining_capacity() const;
 
