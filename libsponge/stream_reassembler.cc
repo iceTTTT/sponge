@@ -23,28 +23,33 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
     //put in stream
     if(datasize+index-1>maxaccepted && datasize)
         maxaccepted=datasize+index-1;
+
     if(index<=nextneeded && index+datasize-1>=nextneeded)
     {      
-           indata=nextneeded-index;      
+           indata=nextneeded-index;  
+           size_t auxsize=aux.size();
+           size_t bufsize=_output.buffer_size();    
            for(;indata<datasize;indata++)
            {
-                if(isfull())
+                if(auxsize+bufsize==_capacity)
                 {
-                 if(_output.buffer_size()==_capacity)
+                 if(bufsize==_capacity)
                     break;
                  if(nextneeded==aux.begin()->index)
-                     aux.erase(aux.begin());
+                     {aux.erase(aux.begin());auxsize--;}
                  else
                    {   
                     p=aux.end();
                     p--;
                     aux.erase(p);
+                    auxsize--;
                    }
                 }
                 _output.writechar(data[indata]);
+                bufsize++;
                 nextneeded++; 
            } 
-         if(_output.buffer_size()<_capacity)
+         if(bufsize<_capacity)
          {
             if(nextneeded>=aux.begin()->index)
             {   
@@ -85,5 +90,3 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
 size_t StreamReassembler::unassembled_bytes() const { return aux.size(); }
 
 bool StreamReassembler::empty() const { return _eof && !aux.size() && (maxaccepted== nextneeded-1 || (nextneeded==0 && maxaccepted==0)); }
-
-bool  StreamReassembler::isfull(){    return (_output.buffer_size()+aux.size() ==_capacity);}
