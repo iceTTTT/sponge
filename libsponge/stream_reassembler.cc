@@ -54,7 +54,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
             if(nextneeded>=aux.begin()->index)
             {   
                while(nextneeded>aux.begin()->index && aux.size())
-                   aux.erase(aux.begin());
+                    aux.erase(aux.begin());
                while(nextneeded==aux.begin()->index && aux.size())
                {
                     nextneeded++;
