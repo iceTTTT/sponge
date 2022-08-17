@@ -30,7 +30,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
            {
                 if(isfull())
                 {
-                 if(!_output.remaining_capacity())
+                 if(_output.buffer_size()==_capacity)
                     break;
                  if(nextneeded==aux.begin()->index)
                      aux.erase(aux.begin());
@@ -44,11 +44,11 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
                 _output.writechar(data[indata]);
                 nextneeded++; 
            } 
-         if(_output.remaining_capacity())
+         if(_output.buffer_size()<_capacity)
          {
             if(nextneeded>=aux.begin()->index)
             {   
-                while(nextneeded>aux.begin()->index && aux.size())
+               while(nextneeded>aux.begin()->index && aux.size())
                    aux.erase(aux.begin());
                while(nextneeded==aux.begin()->index && aux.size())
                {
@@ -86,4 +86,4 @@ size_t StreamReassembler::unassembled_bytes() const { return aux.size(); }
 
 bool StreamReassembler::empty() const { return _eof && !aux.size() && (maxaccepted== nextneeded-1 || (nextneeded==0 && maxaccepted==0)); }
 
-bool StreamReassembler::isfull(){    return (_output.buffer_size()+aux.size() ==_capacity);}
+bool  StreamReassembler::isfull(){    return (_output.buffer_size()+aux.size() ==_capacity);}
