@@ -5,16 +5,32 @@
 
 #include <cstdint>
 #include <string>
-#include <queue>
-
+#include <set>
 //! \brief A class that assembles a series of excerpts from a byte stream (possibly out of order,
 //! possibly overlapping) into an in-order byte stream.
 class StreamReassembler {
+  public:
+  struct pair
+  {
+    size_t index;
+    char value;
+    pair(size_t i,char v):index(i),value(v){}
+  };
+  struct compare
+  {
+    bool operator()(const pair& p1,const pair& p2) const
+    {
+    if(p1.index<p2.index)
+        return true;
+    else
+        return false;
+
+    }
+  };
   private:
     // Your code here -- add private members as necessary
-    std::deque<char> auxiliary; //auxiliary string
+    std::set<pair,compare> aux; //auxiliary string
     size_t nextneeded=0;   //bytes need to put next
-    size_t cacheleast=0;  //smallest cache bytes
     bool _eof=false;
     size_t maxaccepted=0;
     ByteStream _output;  //!< The reassembled in-order byte stream
@@ -53,3 +69,4 @@ class StreamReassembler {
 };
 
 #endif  // SPONGE_LIBSPONGE_STREAM_REASSEMBLER_HH
+
