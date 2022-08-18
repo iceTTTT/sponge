@@ -40,8 +40,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
                  else
                    {   
                     p=aux.end();
-                    p--;
-                    aux.erase(p);
+                    aux.erase(--p);
                     auxsize--;
                    }
                 }
@@ -53,9 +52,9 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
          {
             if(nextneeded>=aux.begin()->index)
             {   
-               while(nextneeded>aux.begin()->index && aux.size())
+               while(nextneeded>aux.begin()->index && !aux.empty())
                     aux.erase(aux.begin());
-               while(nextneeded==aux.begin()->index && aux.size())
+               while(nextneeded==aux.begin()->index && !aux.empty())
                {
                     nextneeded++;
                     _output.writechar(aux.begin()->value);
@@ -65,13 +64,17 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
          }    
     }
     else if(nextneeded<index && nextneeded+_capacity > index)  
-    {    size_t size1=_output.buffer_size();
-         size_t h=0;
-        for(size_t i=0;i<datasize && i+index<=nextneeded+_capacity;i++)
-     {    
+    {     
+          size_t size1=_output.buffer_size();
+          size_t h=0;
+      
+
+         for(size_t i=0;i<datasize && i+index<=nextneeded+_capacity;i++)
+      {    
           if(size1+aux.size() ==_capacity)
-          {  if(i+index>=aux.rbegin()->index)
-                 break;
+          {  
+             if(i+index>=aux.rbegin()->index)
+                break;
              else
               {
                 p=aux.end();
@@ -85,8 +88,8 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
             hint=aux.insert(pair(i+index,data[i])).first;
             h++;
           }
-     }
-
+          
+      }
           
     }
 
@@ -97,4 +100,4 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
 }
 size_t StreamReassembler::unassembled_bytes() const { return aux.size(); }
 
-bool StreamReassembler::empty() const { return _eof && !aux.size() && (maxaccepted== nextneeded-1 || (nextneeded==0 && maxaccepted==0)); }
+bool StreamReassembler::empty() const { return _eof && aux.empty() && (maxaccepted== nextneeded-1 || (nextneeded==0 && maxaccepted==0)); }
