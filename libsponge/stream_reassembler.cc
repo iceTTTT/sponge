@@ -61,23 +61,21 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
           size_t h=0;
          for(size_t i=0;i<datasize;i++)
       {    
-          if(bufsize+aux.size() ==_capacity)
-          {  
-             if(i+index>=aux.rbegin()->index)
-                break;
-             if(aux.find(pair(i+index,data[i])) != aux.end())
-                continue;
-             p=aux.end();
-             aux.erase(--p);
-          }
+          if(bufsize+aux.size() == _capacity && i+index>=aux.rbegin()->index)
+            break;
           if(h)
             hint=aux.insert(hint,pair(i+index,data[i]));
           else
           {
             hint=aux.insert(pair(i+index,data[i])).first;
             h++;
-          }
-          
+          } 
+      }
+      
+      while(bufsize+aux.size() > _capacity)
+      {
+            p=aux.end();
+            aux.erase(--p);
       }      
     }
 
