@@ -23,12 +23,11 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
     //put in stream
     if(datasize+index-1>maxaccepted && datasize)
         maxaccepted=datasize+index-1;
-
+    size_t bufsize=_output.buffer_size();
     if(index<=nextneeded && index+datasize-1>=nextneeded)
     {      
            indata=nextneeded-index;  
-           size_t auxsize=aux.size();
-           size_t bufsize=_output.buffer_size();    
+           size_t auxsize=aux.size();   
            for(;indata<datasize;indata++)
            {
                 if(auxsize+bufsize==_capacity)
@@ -57,9 +56,8 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
                 aux.erase(aux.begin());
             }     
     }
-    else if(nextneeded<index)  
+    else if(nextneeded<index && bufsize!=_capacity)  
     {     
-          size_t bufsize=_output.buffer_size();
           size_t h=0;
          for(size_t i=0;i<datasize;i++)
       {    
