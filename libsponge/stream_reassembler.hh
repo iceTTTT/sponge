@@ -18,14 +18,7 @@ class StreamReassembler {
   };
   struct compare
   {
-    bool operator()(const pair& p1,const pair& p2) const
-    {
-    if(p1.index<p2.index)
-        return true;
-    else
-        return false;
-
-    }
+    bool operator()(const pair& p1,const pair& p2) const{ return p1.index<p2.index; }
   };
   private:
     // Your code here -- add private members as necessary
