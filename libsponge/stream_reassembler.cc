@@ -59,11 +59,11 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
     }
     else if(nextneeded<index && nextneeded+_capacity > index)  
     {     
-          size_t size1=_output.buffer_size();
+          size_t bufsize=_output.buffer_size();
           size_t h=0;
          for(size_t i=0;i<datasize && i+index<=nextneeded+_capacity;i++)
       {    
-          if(size1+aux.size() ==_capacity)
+          if(bufsize+aux.size() ==_capacity)
           {  
              if(i+index>=aux.rbegin()->index)
                 break;
