@@ -11,7 +11,7 @@ template <typename... Targs>
 void DUMMY_CODE(Targs &&... /* unused */) {}
 
 using namespace std;
-ByteStream::ByteStream(const size_t capacity):buffer(new char[capacity+1]),capacit(capacity) {}
+ByteStream::ByteStream(const size_t capacity):buffer(),_capacity(capacity) {}
 
 size_t ByteStream::write(const string &data) 
 {
@@ -19,34 +19,21 @@ size_t ByteStream::write(const string &data)
     if(data.size()<=written)
       written=data.size();
     writecount+=written;
-    for(size_t i=0;i<written;i++)
-    {
-        buffer[rear++]=data[i];
-        rear=rear%(capacit+1);
-    } 
+    buffer.insert(buffer.end(),data.begin(),data.begin()+written);
     return written;
 }
 void ByteStream::writechar(const char& c)
 {
-   
-   buffer[rear++]=c;
-   rear=rear%(capacit+1);
+   buffer.push_back(c);
    writecount++;
 }
 //! \param[in] len bytes will be copied from the output side of the buffer
 string ByteStream::peek_output(const size_t len) const 
 {
     size_t temp=buffer_size();
-    size_t thead=head;
     if(len<=temp)
        temp=len;
-    string ret(temp,'0');
-    for(size_t i=0;i<temp;i++)
-    {
-      ret[i]=buffer[thead++];
-      thead=thead%(capacit+1);
-    }
-    return ret;
+    return string(buffer.begin(),buffer.begin()+temp);
 }
 
 //! \param[in] len bytes will be removed from the output side of the buffer
@@ -56,15 +43,19 @@ void ByteStream::pop_output(const size_t len)
     if(len<temp)
       temp=len;
     readcount+=temp;
-    head=(head+temp)%(capacit+1);
+    buffer.erase(buffer.begin(),buffer.begin()+temp);
 }
 
 //! Read (i.e., copy and then pop) the next "len" bytes of the stream
 //! \param[in] len bytes will be popped and returned
 //! \returns a string
 std::string ByteStream::read(const size_t len) {
-    string ret=peek_output(len);
-    pop_output(len);
+    size_t temp=buffer_size();
+    if(len<temp)
+      temp=len;
+    readcount+=temp;
+    string ret(buffer.begin(),buffer.begin()+temp);
+    buffer.erase(buffer.begin(),buffer.begin()+temp);
     return ret;
 }
 
@@ -72,20 +63,14 @@ void ByteStream::end_input() {isend=true;}
 
 bool ByteStream::input_ended() const { return isend; }
 
-size_t ByteStream::buffer_size() const 
-{ if(rear==head) 
-     return 0;
-  if(rear>head)
-     return rear-head;
- return (capacit+1)-head+rear;
-}
+size_t ByteStream::buffer_size() const { return buffer.size();}
 
-bool ByteStream::buffer_empty() const { return head==rear; }
+bool ByteStream::buffer_empty() const { return buffer.empty(); }
 
-bool ByteStream::eof() const { return head==rear&&isend; }
+bool ByteStream::eof() const { return buffer.empty()&&isend; }
 
 size_t ByteStream::bytes_written() const { return writecount; }
 
 size_t ByteStream::bytes_read() const { return readcount; }
 
-size_t ByteStream::remaining_capacity() const { return capacit-buffer_size(); }
+size_t ByteStream::remaining_capacity() const { return _capacity-buffer.size(); }
