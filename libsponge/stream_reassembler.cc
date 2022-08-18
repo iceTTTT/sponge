@@ -67,11 +67,10 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
           {  
              if(i+index>=aux.rbegin()->index)
                 break;
-             else
-              {
-                p=aux.end();
-                aux.erase(--p);
-              }
+             if(aux.find(pair(i+index,data[i])) != aux.end())
+                continue;
+             p=aux.end();
+             aux.erase(--p);
           }
           if(h)
             hint=aux.insert(hint,pair(i+index,data[i]));
