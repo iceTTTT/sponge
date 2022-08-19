@@ -48,7 +48,7 @@ class StreamReassembler {
     const ByteStream &stream_out() const { return _output; }
     ByteStream &stream_out() { return _output; }
     //!@}
-
+    size_t getabsackno()  const  {return nextneeded;}
     //! The number of bytes in the substrings stored but not yet reassembled
     //!
     //! \note If the byte at a particular index has been pushed more than once, it
