@@ -18,9 +18,12 @@ class TCPReceiver {
     StreamReassembler _reassembler;
 
     //initial sequence number.
+    WrappingInt32 maxseq{};
+    size_t maxlength{};
     WrappingInt32 isn{};
     //true if got the isn.
     bool init=false;
+    bool eof=false;
     //! The maximum number of bytes we'll store.
     size_t _capacity;
 
