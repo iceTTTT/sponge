@@ -17,18 +17,8 @@ void TCPReceiver::segment_received(const TCPSegment &seg)
         init=true;
         _reassembler.increackno();
     }
-    if(seg.header().fin)
-    {   
-        maxseq.changevalue( (seg.header().seqno).raw_value());
-        maxlength=seg.length_in_sequence_space()-1;
-        eof=true;
-    } 
     if(init)
-    {   
-        _reassembler.push_substring(seg.payload().str(),unwrap(seg.header().seqno+(seg.header().syn? 1: 0),isn,_reassembler.getabsackno()-1),false);
-        if(eof)
-        _reassembler.push_substring("",unwrap(maxseq,isn,_reassembler.getabsackno()-1)+maxlength,eof);
-    }
+      _reassembler.push_substring(seg.payload().str(),unwrap(seg.header().seqno+(seg.header().syn? 1: 0),isn,_reassembler.getabsackno()-1),seg.header().fin);
     if(_reassembler.empty())
       _reassembler.increackno();
 }
