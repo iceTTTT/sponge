@@ -23,7 +23,6 @@ class TCPReceiver {
     WrappingInt32 isn{};
     //true if got the isn.
     bool init=false;
-    bool eof=false;
     //! The maximum number of bytes we'll store.
     size_t _capacity;
 
