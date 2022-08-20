@@ -20,7 +20,7 @@ void StreamReassembler::push_substring(const string_view &data, const size_t ind
 {   size_t datasize=data.size();
     size_t indata;
     set<pair,compare>::iterator p,hint;
-    //put in stream
+    //if eof && index is not the best , maybe wrong but this packet is wrong.
     if((datasize+index-1>maxaccepted) && (  datasize  || eof ))
         maxaccepted=datasize+index-1;
     size_t bufsize=_output.buffer_size();
