@@ -41,13 +41,15 @@ class StreamReassembler {
     //! \param data the substring
     //! \param index indicates the index (place in sequence) of the first byte in `data`
     //! \param eof the last byte of `data` will be the last byte in the entire stream
-    void push_substring(const std::string &data, const uint64_t index, const bool eof);
-
+    void push_substring(const std::string_view &data, const uint64_t index, const bool eof);
+    //! increment ackno
+    void increackno(){nextneeded++;}
     //! \name Access the reassembled byte stream
     //!@{
     const ByteStream &stream_out() const { return _output; }
     ByteStream &stream_out() { return _output; }
     //!@}
+    //! get the ackno
     size_t getabsackno()  const  {return nextneeded;}
     //! The number of bytes in the substrings stored but not yet reassembled
     //!

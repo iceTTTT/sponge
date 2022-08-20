@@ -16,7 +16,7 @@ StreamReassembler::StreamReassembler(const size_t capacity) : aux(),_output(capa
 //! \details This function accepts a substring (aka a segment) of bytes,
 //! possibly out-of-order, from the logical stream, and assembles any newly
 //! contiguous substrings and writes them into the output stream in order.
-void StreamReassembler::push_substring(const string &data, const size_t index, const bool eof) 
+void StreamReassembler::push_substring(const string_view &data, const size_t index, const bool eof) 
 {   size_t datasize=data.size();
     size_t indata;
     set<pair,compare>::iterator p,hint;
