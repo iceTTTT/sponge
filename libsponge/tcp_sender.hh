@@ -16,10 +16,22 @@
 //! maintains the Retransmission Timer, and retransmits in-flight
 //! segments if the retransmission timer expires.
 class TCPSender {
+  public:
+    class timer
+   {   public:
+       uint32_t rt_times;
+       size_t   accu_tick;
+       uint32_t current_rto;
+       bool run;
+       timer(unsigned int irto):rt_times(0),accu_tick(0),current_rto(irto),run(false){}
+       void stop(){accu_tick=0; rt_times=0; run=false;}
+       void start(){run=true;}
+       bool expire(){return accu_tick>=current_rto;}
+   };
   private:
     //! our initial sequence number, the number for our SYN.
     WrappingInt32 _isn;
-
+    
     //! outbound queue of segments that the TCPSender wants sent
     std::queue<TCPSegment> _segments_out{};
 
@@ -32,7 +44,9 @@ class TCPSender {
     //! the (absolute) sequence number for the next byte to be sent
     uint64_t _next_seqno{0};
 
+    timer mytimer;
   public:
+ 
     //! Initialize a TCPSender
     TCPSender(const size_t capacity = TCPConfig::DEFAULT_CAPACITY,
               const uint16_t retx_timeout = TCPConfig::TIMEOUT_DFLT,
