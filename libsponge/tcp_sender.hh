@@ -8,7 +8,8 @@
 
 #include <functional>
 #include <queue>
-
+#include <set>
+#include <memory>
 //! \brief The "sender" part of a TCP implementation.
 
 //! Accepts a ByteStream, divides it up into segments and sends the
@@ -28,6 +29,26 @@ class TCPSender {
        void start(){run=true;}
        bool expire(){return accu_tick>=current_rto;}
    };
+   class tracker
+   {
+     public:
+    size_t absseqno;
+    TCPSegment tcp;
+    tracker(size_t abs,TCPSegment p):absseqno(abs),tcp(p){}
+   };
+   class compare
+   {
+   public:
+   bool operator()(const tracker& t1,const tracker& t2) const
+   {
+      if(t1.absseqno < t2.absseqno)
+        return true;
+      else
+        return false;
+   }
+
+   };
+
   private:
     //! our initial sequence number, the number for our SYN.
     WrappingInt32 _isn;
@@ -45,6 +66,16 @@ class TCPSender {
     uint64_t _next_seqno{0};
 
     timer mytimer;
+
+    uint64_t bif{0};
+
+    std::set<tracker,compare> track{};
+
+    uint64_t lastack{0};
+
+    long wsize{-1};
+
+    bool finsent{false};
   public:
  
     //! Initialize a TCPSender
