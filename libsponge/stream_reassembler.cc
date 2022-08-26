@@ -26,23 +26,9 @@ void StreamReassembler::push_substring(const string_view &data, const size_t ind
     size_t bufsize=_output.buffer_size();
     if(index<=nextneeded && index+datasize-1>=nextneeded)
     {      
-           indata=nextneeded-index;  
-           size_t auxsize=aux.size();   
-           for(;indata<datasize;indata++)
+           indata=nextneeded-index;   
+           for(;indata<datasize && bufsize<_capacity;indata++)
            {
-                if(auxsize+bufsize==_capacity)
-                {
-                 if(bufsize==_capacity)
-                    break;
-                 if(nextneeded==aux.begin()->index)
-                     {aux.erase(aux.begin());auxsize--;}
-                 else
-                   {   
-                    p=aux.end();
-                    aux.erase(--p);
-                    auxsize--;
-                   }
-                }
                 _output.writechar(data[indata]);
                 bufsize++;
                 nextneeded++; 
@@ -54,15 +40,13 @@ void StreamReassembler::push_substring(const string_view &data, const size_t ind
                 nextneeded++;
                 _output.writechar(aux.begin()->value);
                 aux.erase(aux.begin());
-            }     
+            }    
     }
     else if(nextneeded<index && index<nextneeded+(_capacity- bufsize))  
     {     
           size_t h=0;
-         for(size_t i=0;i<datasize;i++)
+         for(size_t i=0;i<datasize && i+index <nextneeded+ (_capacity -bufsize);i++)
       {    
-          if(bufsize+aux.size() == _capacity && i+index>=aux.rbegin()->index)
-            break;
           if(h)
             hint=aux.insert(hint,pair(i+index,data[i]));
           else
@@ -71,14 +55,7 @@ void StreamReassembler::push_substring(const string_view &data, const size_t ind
             h++;
           } 
       }
-      
-      while(bufsize+aux.size() > _capacity)
-      {
-            p=aux.end();
-            aux.erase(--p);
-      }      
     }
-
     if(eof)
       _eof=true;
     if(empty())

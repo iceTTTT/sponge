@@ -17,8 +17,13 @@ void TCPReceiver::segment_received(const TCPSegment &seg)
         init=true;
         _reassembler.increackno();
     }
-    if(init)
+    if(init &&   seg.length_in_sequence_space() - (seg.header().syn? 1: 0)    )
+    {  
+      
+        
+
       _reassembler.push_substring(seg.payload().str(),unwrap(seg.header().seqno+(seg.header().syn? 1: 0),isn,_reassembler.getabsackno()-1),seg.header().fin);
+    }
     if(_reassembler.empty() && !lastbytesacked)
       {_reassembler.increackno();  lastbytesacked=true;}
 }
