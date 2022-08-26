@@ -35,7 +35,7 @@ void TCPConnection::segment_received(const TCPSegment &seg)
   //size_t inlastack= _receiver.getasmbler().getabsackno();
   _receiver.segment_received(seg);
   //size_t inthisack=_receiver.getasmbler().getabsackno();
-  if( _receiver.getasmbler().empty()  &&  !_sender.finsent )
+  if(_receiver.getasmbler().stream_out().input_ended()  &&  !_sender.finsent )
     _linger_after_streams_finish=false;
 
 
@@ -79,7 +79,7 @@ void TCPConnection::segment_received(const TCPSegment &seg)
 bool TCPConnection::active() const 
 { if(_sender.stream_in().error() && _receiver.stream_out().error()) 
      return false;
-  if(_receiver.getasmbler().empty() &&  !_sender.bytes_in_flight() &&  _sender.finsent  && !_linger_after_streams_finish )
+  if(_receiver.getasmbler().stream_out().input_ended() &&  !_sender.bytes_in_flight() &&  _sender.finsent  && !_linger_after_streams_finish )
      return false; 
   return true;
 }
@@ -96,10 +96,10 @@ size_t TCPConnection::write(const string &data)
 //! \param[in] ms_since_last_tick number of milliseconds since the last call to this method
 void TCPConnection::tick(const size_t ms_since_last_tick) 
 {  currenttime+=ms_since_last_tick;
-   if(_receiver.getasmbler().empty() &&  !_sender.bytes_in_flight() &&  _sender.finsent && !_sender.wsize )
+   if(_receiver.getasmbler().stream_out().input_ended() &&  !_sender.bytes_in_flight() &&  _sender.finsent && !_sender.wsize )
       _sender.wsize=-1;
      
-   if(_receiver.getasmbler().empty() &&  !_sender.bytes_in_flight() &&  _sender.finsent  && _linger_after_streams_finish  && time_since_last_segment_received() >= 10*_cfg.rt_timeout)
+   if(_receiver.getasmbler().stream_out().input_ended() &&  !_sender.bytes_in_flight() &&  _sender.finsent  && _linger_after_streams_finish  && time_since_last_segment_received() >= 10*_cfg.rt_timeout)
         _linger_after_streams_finish=false;
    _sender.tick(ms_since_last_tick); 
     if(_sender.consecutive_retransmissions() > _cfg.MAX_RETX_ATTEMPTS)
