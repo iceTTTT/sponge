@@ -21,6 +21,9 @@ class TCPConnection {
     //! in case the remote TCPConnection doesn't know we've received its whole stream?
     bool _linger_after_streams_finish{true};
 
+    size_t currenttime{0};
+    size_t lastrectime{0};
+
   public:
     //! \name "Input" interface for the writer
     //!@{
@@ -85,7 +88,7 @@ class TCPConnection {
 
     //! \name construction and destruction
     //! moving is allowed; copying is disallowed; default construction not possible
-
+    void output();
     //!@{
     ~TCPConnection();  //!< destructor sends a RST if the connection is still open
     TCPConnection() = delete;

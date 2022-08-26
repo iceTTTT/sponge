@@ -56,7 +56,7 @@ void StreamReassembler::push_substring(const string_view &data, const size_t ind
                 aux.erase(aux.begin());
             }     
     }
-    else if(nextneeded<index && bufsize!=_capacity)  
+    else if(nextneeded<index && index<nextneeded+(_capacity- bufsize))  
     {     
           size_t h=0;
          for(size_t i=0;i<datasize;i++)

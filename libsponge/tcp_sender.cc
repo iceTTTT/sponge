@@ -33,13 +33,14 @@ void TCPSender::fill_window()
        out.header().seqno=next_seqno();
        _segments_out.push(out);
 
+
        bif+=out.length_in_sequence_space();
        _next_seqno+=out.length_in_sequence_space();
-
        track.insert(tracker(0,out));
        mytimer.start();
        return;
    }
+
      if(_stream.buffer_empty()) 
   { if(_stream.eof() && !finsent && wsize>0)
       {
@@ -47,11 +48,15 @@ void TCPSender::fill_window()
       out.header().seqno=next_seqno();
       out.header().fin=true;
       _segments_out.push(out);
+
+
       track.insert(tracker(_next_seqno,out));
       bif+=out.length_in_sequence_space();
       _next_seqno+=out.length_in_sequence_space();
       mytimer.start();
       finsent=true;
+
+
       wsize=-1;
       }
     if(wsize || !_stream.eof())
@@ -68,9 +73,9 @@ void TCPSender::fill_window()
         {out.header().fin=true;finsent=true;}
       _segments_out.push(out);
       track.insert(tracker(_next_seqno,out));
+
       bif+=out.length_in_sequence_space();
       _next_seqno+=out.length_in_sequence_space();
-
       wsize-=out.length_in_sequence_space();
       if(_stream.buffer_empty())
        {
@@ -89,6 +94,8 @@ void TCPSender::fill_window()
         {out.header().fin=true;finsent=true;}
       _segments_out.push(out);
       track.insert(tracker(_next_seqno,out));
+
+
       bif+=out.length_in_sequence_space();
       _next_seqno+=out.length_in_sequence_space();
       wsize-=out.length_in_sequence_space();
@@ -108,6 +115,8 @@ void TCPSender::fill_window()
       {out.header().fin=true;finsent=true;}
    _segments_out.push(out);
    track.insert(tracker(_next_seqno,out));
+
+
    bif+=out.length_in_sequence_space();
    _next_seqno+=out.length_in_sequence_space();
    mytimer.start();
@@ -121,14 +130,10 @@ void TCPSender::fill_window()
 void TCPSender::ack_received(const WrappingInt32 ackno, const uint16_t window_size) 
 {  uint64_t absackno=unwrap(ackno,_isn,_next_seqno);
    //impossible case
-    if(absackno > _next_seqno)
+    if(absackno > _next_seqno || absackno < lastack)
       return;
-    if(absackno<lastack)
-      return;
-    
-    bif-=(absackno-lastack);
-    
 
+    bif-=(absackno-lastack);
     //wsize=window_size;
     if(absackno+window_size == _next_seqno  && window_size)
        wsize=-1;

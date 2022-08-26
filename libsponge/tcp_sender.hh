@@ -71,12 +71,13 @@ class TCPSender {
 
     uint64_t lastack{0};
 
-    long wsize{-1};
+    
 
     
 
     bool firstsent{true};
   public:
+    long wsize{-1};
     std::set<tracker,compare> track{};
     bool finsent{false};
     timer mytimer;
