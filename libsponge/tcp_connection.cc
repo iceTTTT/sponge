@@ -96,9 +96,6 @@ size_t TCPConnection::write(const string &data)
 //! \param[in] ms_since_last_tick number of milliseconds since the last call to this method
 void TCPConnection::tick(const size_t ms_since_last_tick) 
 {  currenttime+=ms_since_last_tick;
-   if(_receiver.getasmbler().stream_out().input_ended() &&  !_sender.bytes_in_flight() &&  _sender.finsent && !_sender.wsize )
-      _sender.wsize=-1;
-     
    if(_receiver.getasmbler().stream_out().input_ended() &&  !_sender.bytes_in_flight() &&  _sender.finsent  && _linger_after_streams_finish  && time_since_last_segment_received() >= 10*_cfg.rt_timeout)
         _linger_after_streams_finish=false;
    _sender.tick(ms_since_last_tick); 
