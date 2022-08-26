@@ -32,9 +32,8 @@ void TCPConnection::segment_received(const TCPSegment &seg)
      _linger_after_streams_finish=false;
   }
   //reive seg from remote tcp
-  //size_t inlastack= _receiver.getasmbler().getabsackno();
+
   _receiver.segment_received(seg);
-  //size_t inthisack=_receiver.getasmbler().getabsackno();
   if(_receiver.getasmbler().stream_out().input_ended()  &&  !_sender.finsent )
     _linger_after_streams_finish=false;
 
