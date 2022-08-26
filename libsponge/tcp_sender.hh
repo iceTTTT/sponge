@@ -65,19 +65,21 @@ class TCPSender {
     //! the (absolute) sequence number for the next byte to be sent
     uint64_t _next_seqno{0};
 
-    timer mytimer;
-
     uint64_t bif{0};
 
-    std::set<tracker,compare> track{};
+    
 
     uint64_t lastack{0};
 
     long wsize{-1};
 
-    bool finsent{false};
+    
+
+    bool firstsent{true};
   public:
- 
+    std::set<tracker,compare> track{};
+    bool finsent{false};
+    timer mytimer;
     //! Initialize a TCPSender
     TCPSender(const size_t capacity = TCPConfig::DEFAULT_CAPACITY,
               const uint16_t retx_timeout = TCPConfig::TIMEOUT_DFLT,
@@ -125,13 +127,17 @@ class TCPSender {
 
     //! \name What is the next sequence number? (used for testing)
     //!@{
-
+    bool isfinsent(){return finsent;}
     //! \brief absolute seqno for the next byte to be sent
     uint64_t next_seqno_absolute() const { return _next_seqno; }
 
     //! \brief relative seqno for the next byte to be sent
     WrappingInt32 next_seqno() const { return wrap(_next_seqno, _isn); }
     //!@}
+    const WrappingInt32& retlocalisn() const {return _isn;} 
+
+
+    const size_t& getlastack()const {return lastack;}
 };
 
 #endif  // SPONGE_LIBSPONGE_TCP_SENDER_HH
