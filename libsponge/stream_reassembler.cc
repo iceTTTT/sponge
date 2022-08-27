@@ -20,22 +20,26 @@ void StreamReassembler::push_substring(const string_view& data, const size_t ind
 {   size_t datasize=data.size();
     set<pair,compare>::iterator p,hint;
     size_t bufsize=_output.buffer_size();
-    //if eof && index is not the best , maybe wrong but this packet is wrong.
-    if((datasize+index-1>maxaccepted) && (  datasize  || eof ))
-        maxaccepted=datasize+index-1;
+    //index of the biggest byte
+    if(eof)
+      {maxaccepted=index+datasize-1;  _eof=true;}
     if(!datasize)
-       goto end;
+      goto end;
     if(index<=nextneeded && index+datasize-1>=nextneeded)
     {      
           nextneeded+=_output.write({data.data()+nextneeded-index,data.size() -(nextneeded-index) });
           while(!aux.empty() && nextneeded>aux.begin()->index )
                 aux.erase(aux.begin());
+          string output;
           while(!aux.empty() && nextneeded==aux.begin()->index )
             {
                 nextneeded++;
-                _output.writechar(aux.begin()->value);
+                output.insert(output.end(),aux.begin()->value);
+                //_output.writechar(aux.begin()->value);
                 aux.erase(aux.begin());
-            }    
+            }
+         if(!output.empty())
+           _output.write({output.data(),output.size()});    
     }
     else if(nextneeded<index && index<nextneeded+(_capacity- bufsize))  
     {     
@@ -52,8 +56,6 @@ void StreamReassembler::push_substring(const string_view& data, const size_t ind
       }
     }
     end:
-    if(eof)
-      _eof=true;
     if(empty())
      _output.end_input();
 }
