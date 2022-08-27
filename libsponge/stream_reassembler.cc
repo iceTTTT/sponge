@@ -27,7 +27,7 @@ void StreamReassembler::push_substring(const string_view& data, const size_t ind
       goto end;
     if(index<=nextneeded && index+datasize-1>=nextneeded)
     {      
-          nextneeded+=_output.write({data.data()+nextneeded-index,data.size() -(nextneeded-index) });
+          nextneeded+=_output.write(  move(string{data.data()+nextneeded-index,datasize -(nextneeded-index) }));
           while(!aux.empty() && nextneeded>aux.begin()->index )
                 aux.erase(aux.begin());
           string output;
@@ -39,7 +39,7 @@ void StreamReassembler::push_substring(const string_view& data, const size_t ind
                 aux.erase(aux.begin());
             }
          if(!output.empty())
-           _output.write({output.data(),output.size()});    
+           _output.write(move(output));    
     }
     else if(nextneeded<index && index<nextneeded+(_capacity- bufsize))  
     {     
