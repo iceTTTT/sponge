@@ -137,8 +137,11 @@ class TCPSender {
     //!@}
     const WrappingInt32& retlocalisn() const {return _isn;} 
 
-
+  
     const size_t& getlastack()const {return lastack;}
+
+
+    void pushtrack(const TCPSegment& out);
 };
 
 #endif  // SPONGE_LIBSPONGE_TCP_SENDER_HH

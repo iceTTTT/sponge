@@ -31,35 +31,26 @@ void TCPSender::fill_window()
        TCPSegment out;
        out.header().syn=true;
        out.header().seqno=next_seqno();
-       _segments_out.push(out);
-
-
-       bif+=out.length_in_sequence_space();
-       _next_seqno+=out.length_in_sequence_space();
-       track.insert(tracker(0,out));
+       pushtrack(out);
        mytimer.start();
        return;
    }
 
      if(_stream.buffer_empty()) 
-  { if(_stream.eof() && !finsent && wsize>0)
+  { 
+    if(!_stream.eof())
+        return;
+    if(!finsent && wsize>0)
       {
       TCPSegment out;
       out.header().seqno=next_seqno();
       out.header().fin=true;
-      _segments_out.push(out);
-
-
-      track.insert(tracker(_next_seqno,out));
-      bif+=out.length_in_sequence_space();
-      _next_seqno+=out.length_in_sequence_space();
+      pushtrack(out);
       mytimer.start();
       finsent=true;
-
-
       wsize=-1;
       }
-    if(wsize || !_stream.eof())
+    if(wsize)
      return;
   }
    if(wsize && wsize!=-1)
@@ -71,11 +62,9 @@ void TCPSender::fill_window()
       out.header().seqno=next_seqno();
       if(_stream.eof() && !finsent && out.length_in_sequence_space() < uint64_t(wsize))
         {out.header().fin=true;finsent=true;}
-      _segments_out.push(out);
-      track.insert(tracker(_next_seqno,out));
 
-      bif+=out.length_in_sequence_space();
-      _next_seqno+=out.length_in_sequence_space();
+      pushtrack(out);
+
       wsize-=out.length_in_sequence_space();
       if(_stream.buffer_empty())
        {
@@ -92,12 +81,9 @@ void TCPSender::fill_window()
       out.header().seqno=next_seqno();
       if(_stream.eof() && !finsent && out.length_in_sequence_space() < uint64_t(wsize))
         {out.header().fin=true;finsent=true;}
-      _segments_out.push(out);
-      track.insert(tracker(_next_seqno,out));
 
+      pushtrack(out);
 
-      bif+=out.length_in_sequence_space();
-      _next_seqno+=out.length_in_sequence_space();
       wsize-=out.length_in_sequence_space();
       if(!wsize)
         wsize=-1;
@@ -113,12 +99,7 @@ void TCPSender::fill_window()
    out.header().seqno=next_seqno();
    if(!out.length_in_sequence_space() && _stream.eof() && !finsent)
       {out.header().fin=true;finsent=true;}
-   _segments_out.push(out);
-   track.insert(tracker(_next_seqno,out));
-
-
-   bif+=out.length_in_sequence_space();
-   _next_seqno+=out.length_in_sequence_space();
+   pushtrack(out);
    mytimer.start();
    firstsent=false;
  }
@@ -178,7 +159,6 @@ void TCPSender::tick(const size_t ms_since_last_tick)
         }
     }
 
-
 }
 
 unsigned int TCPSender::consecutive_retransmissions() const { return mytimer.rt_times; }
@@ -189,4 +169,14 @@ void TCPSender::send_empty_segment()
       out.header().seqno=wrap(lastack? lastack-1 : lastack,_isn);
       out.header().ack=true;
       _segments_out.push(out);
+}
+
+
+void TCPSender::pushtrack(const TCPSegment& out)
+{
+   _segments_out.push(out);
+   track.insert(tracker(_next_seqno,out));
+   bif+=out.length_in_sequence_space();
+   _next_seqno+=out.length_in_sequence_space();
+
 }
