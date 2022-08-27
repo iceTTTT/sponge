@@ -16,23 +16,18 @@ StreamReassembler::StreamReassembler(const size_t capacity) : aux(),_output(capa
 //! \details This function accepts a substring (aka a segment) of bytes,
 //! possibly out-of-order, from the logical stream, and assembles any newly
 //! contiguous substrings and writes them into the output stream in order.
-void StreamReassembler::push_substring(const string_view &data, const size_t index, const bool eof) 
+void StreamReassembler::push_substring(const string_view& data, const size_t index, const bool eof) 
 {   size_t datasize=data.size();
-    size_t indata;
     set<pair,compare>::iterator p,hint;
+    size_t bufsize=_output.buffer_size();
     //if eof && index is not the best , maybe wrong but this packet is wrong.
     if((datasize+index-1>maxaccepted) && (  datasize  || eof ))
         maxaccepted=datasize+index-1;
-    size_t bufsize=_output.buffer_size();
+    if(!datasize)
+       goto end;
     if(index<=nextneeded && index+datasize-1>=nextneeded)
     {      
-           indata=nextneeded-index;   
-           for(;indata<datasize && bufsize<_capacity;indata++)
-           {
-                _output.writechar(data[indata]);
-                bufsize++;
-                nextneeded++; 
-           } 
+          nextneeded+=_output.write({data.data()+nextneeded-index,data.size() -(nextneeded-index) });
           while(!aux.empty() && nextneeded>aux.begin()->index )
                 aux.erase(aux.begin());
           while(!aux.empty() && nextneeded==aux.begin()->index )
@@ -56,6 +51,7 @@ void StreamReassembler::push_substring(const string_view &data, const size_t ind
           } 
       }
     }
+    end:
     if(eof)
       _eof=true;
     if(empty())
