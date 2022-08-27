@@ -55,10 +55,10 @@ class Buffer {
 //! encapsulate a TCP payload in a TCPSegment, and then encapsulate
 //! the TCPSegment in an IPv4Datagram) without copying the payload.
 class BufferList {
-  private:
-    std::deque<Buffer> _buffers{};
+    
 
   public:
+    std::deque<Buffer> _buffers{};
     //! \name Constructors
     //!@{
 

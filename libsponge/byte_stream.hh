@@ -3,6 +3,7 @@
 
 #include <string>
 #include<deque>
+#include"util/buffer.hh"
 //! \brief An in-order byte stream.
 
 //! Bytes are written on the "input" side and read from the "output"
@@ -16,7 +17,8 @@ class ByteStream {
     // all, but if any of your tests are taking longer than a second,
     // that's a sign that you probably want to keep exploring
     // different approaches.
-    std::deque<char> buffer;
+
+    BufferList buffer;
     size_t _capacity;
     bool isend=false;
     size_t writecount=0;
@@ -32,8 +34,7 @@ class ByteStream {
     //! Write a string of bytes into the stream. Write as many
     //! as will fit, and return how many were written.
     //! \returns the number of bytes accepted into the stream
-    size_t write(const std::string_view& data);
-    void writechar(const char& c);
+    size_t write(std::string data);
     //! \returns the number of additional bytes that the stream has space for
     size_t remaining_capacity() const;
 
