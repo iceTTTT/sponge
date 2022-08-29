@@ -8,7 +8,7 @@ using namespace std;
 
 void get_URL(const string &host, const string &path) {
     // Your code here.
-    CS144TCPSocket mysocket; 
+    FullStackSocket mysocket; 
     mysocket.connect(Address(host,"http"));
     mysocket.write("GET "+path+" HTTP/1.1\r\nHost: "+host+"\r\nConnection: close\r\n\r\n");
     while(1)
