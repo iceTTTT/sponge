@@ -25,18 +25,32 @@ void DUMMY_CODE(Targs &&... /* unused */) {}
 void Router::add_route(const uint32_t route_prefix,
                        const uint8_t prefix_length,
                        const optional<Address> next_hop,
-                       const size_t interface_num) {
+                       const size_t interface_num) 
+{
     cerr << "DEBUG: adding route " << Address::from_ipv4_numeric(route_prefix).ip() << "/" << int(prefix_length)
          << " => " << (next_hop.has_value() ? next_hop->ip() : "(direct)") << " on interface " << interface_num << "\n";
 
-    DUMMY_CODE(route_prefix, prefix_length, next_hop, interface_num);
-    // Your code here.
+    forwardtable.insert(make_pair(prefix_length,Router::sroute(route_prefix,next_hop,interface_num)));
 }
 
 //! \param[in] dgram The datagram to be routed
-void Router::route_one_datagram(InternetDatagram &dgram) {
-    DUMMY_CODE(dgram);
-    // Your code here.
+void Router::route_one_datagram(InternetDatagram &dgram) 
+{   if(!dgram.header().ttl || !--dgram.header().ttl)
+                return;
+    for(auto& i: forwardtable)
+    {
+      if(i.first==0)
+         interface(i.second.interfacenum).send_datagram(dgram,i.second.nexthop.has_value()? i.second.nexthop.value(): Address::from_ipv4_numeric(dgram.header().dst) );
+      else
+      {
+        uint32_t mask= (int(0x80000000) >> (i.first-1));
+        if((dgram.header().dst & mask) == (i.second.route_prefix & mask))
+          {
+           interface(i.second.interfacenum).send_datagram(dgram,i.second.nexthop.has_value()? i.second.nexthop.value(): Address::from_ipv4_numeric(dgram.header().dst) );
+           break;
+          }
+      }
+    }
 }
 
 void Router::route() {

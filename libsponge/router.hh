@@ -5,7 +5,7 @@
 
 #include <optional>
 #include <queue>
-
+#include <map>
 //! \brief A wrapper for NetworkInterface that makes the host-side
 //! interface asynchronous: instead of returning received datagrams
 //! immediately (from the `recv_frame` method), it stores them for
@@ -13,7 +13,7 @@
 //! implementation of NetworkInterface.
 class AsyncNetworkInterface : public NetworkInterface {
     std::queue<InternetDatagram> _datagrams_out{};
-
+    
   public:
     using NetworkInterface::NetworkInterface;
 
@@ -42,12 +42,35 @@ class AsyncNetworkInterface : public NetworkInterface {
 //! performs longest-prefix-match routing between them.
 class Router {
     //! The router's collection of network interfaces
+    public:
+        class sroute
+    {      public:
+           uint32_t route_prefix;
+           std::optional<Address> nexthop;
+           size_t interfacenum;
+           sroute(uint32_t rp,std::optional<Address> nh,size_t in):route_prefix(rp),nexthop(nh),interfacenum(in) {}
+    };
+    private:
     std::vector<AsyncNetworkInterface> _interfaces{};
 
+    class compare
+   {  public:
+      bool operator()(const uint8_t& a1,const uint8_t& a2) const
+      {
+              if(a1>a2)
+              return true;
+              else
+              return false;
+      }
+ 
+    };
     //! Send a single datagram from the appropriate outbound interface to the next hop,
     //! as specified by the route with the longest prefix_length that matches the
     //! datagram's destination address.
     void route_one_datagram(InternetDatagram &dgram);
+
+
+    std::multimap<uint8_t,sroute,compare>   forwardtable{};
 
   public:
     //! Add an interface to the router
