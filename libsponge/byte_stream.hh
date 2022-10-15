@@ -2,7 +2,8 @@
 #define SPONGE_LIBSPONGE_BYTE_STREAM_HH
 
 #include <string>
-
+#include<deque>
+#include"util/buffer.hh"
 //! \brief An in-order byte stream.
 
 //! Bytes are written on the "input" side and read from the "output"
@@ -17,8 +18,12 @@ class ByteStream {
     // that's a sign that you probably want to keep exploring
     // different approaches.
 
+    BufferList buffer;
+    size_t _capacity;
+    bool isend=false;
+    size_t writecount=0;
+    size_t readcount=0;
     bool _error{};  //!< Flag indicating that the stream suffered an error.
-
   public:
     //! Construct a stream with room for `capacity` bytes.
     ByteStream(const size_t capacity);
@@ -29,8 +34,7 @@ class ByteStream {
     //! Write a string of bytes into the stream. Write as many
     //! as will fit, and return how many were written.
     //! \returns the number of bytes accepted into the stream
-    size_t write(const std::string &data);
-
+    size_t write(std::string data);
     //! \returns the number of additional bytes that the stream has space for
     size_t remaining_capacity() const;
 

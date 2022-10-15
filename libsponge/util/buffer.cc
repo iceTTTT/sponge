@@ -47,7 +47,6 @@ size_t BufferList::size() const {
     }
     return ret;
 }
-
 void BufferList::remove_prefix(size_t n) {
     while (n > 0) {
         if (_buffers.empty()) {

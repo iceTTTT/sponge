@@ -1,4 +1,4 @@
-#include "socket.hh"
+#include "tcp_sponge_socket.hh"
 #include "util.hh"
 
 #include <cstdlib>
@@ -8,7 +8,17 @@ using namespace std;
 
 void get_URL(const string &host, const string &path) {
     // Your code here.
-
+    FullStackSocket mysocket; 
+    mysocket.connect(Address(host,"http"));
+    mysocket.write("GET "+path+" HTTP/1.1\r\nHost: "+host+"\r\nConnection: close\r\n\r\n");
+    while(1)
+    {auto get=mysocket.read();
+    cout<<get;
+    if(mysocket.eof())
+     break;
+    }
+    mysocket.close();
+    mysocket.wait_until_closed();
     // You will need to connect to the "http" service on
     // the computer whose name is in the "host" string,
     // then request the URL path given in the "path" string.
